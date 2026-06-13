@@ -13,7 +13,6 @@ import net.minecraftforge.registries.DataPackRegistryEvent;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = EnhancedCelestials.MOD_ID)
 public class ECModBusEventsHandler {
-
     @SubscribeEvent
     public static void registerDatapack(DataPackRegistryEvent.NewRegistry event) {
         // Disgusting workaround bc Forge prefixes name spaces. We want to datagen fabric so this is the gross alternative.

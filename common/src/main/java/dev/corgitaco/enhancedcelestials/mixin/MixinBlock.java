@@ -1,6 +1,7 @@
 package dev.corgitaco.enhancedcelestials.mixin;
 
 import dev.corgitaco.enhancedcelestials.EnhancedCelestials;
+import dev.corgitaco.enhancedcelestials.config.ConfigAwareLunarEventHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +19,7 @@ public class MixinBlock {
     private static void modifyDrops(Level world, BlockPos pos, ItemStack stack, CallbackInfo ci) {
         if (!world.isClientSide) {
             EnhancedCelestials.lunarForecastWorldData(world).ifPresent(data ->
-                    data.currentLunarEvent().onBlockItemDrop((ServerLevel) world, stack)
+                    ConfigAwareLunarEventHelper.onBlockItemDrop(data.currentLunarEventHolder(), (ServerLevel) world, stack)
             );
         }
     }

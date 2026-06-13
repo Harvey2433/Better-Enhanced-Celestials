@@ -1,6 +1,7 @@
 package dev.corgitaco.enhancedcelestials.mixin;
 
 import dev.corgitaco.enhancedcelestials.EnhancedCelestials;
+import dev.corgitaco.enhancedcelestials.config.ConfigAwareLunarEventHelper;
 import dev.corgitaco.enhancedcelestials.lunarevent.EnhancedCelestialsLunarForecastWorldData;
 import dev.corgitaco.enhancedcelestials.mixin.access.ChunkMapAccess;
 import dev.corgitaco.enhancedcelestials.mixin.access.MobCountsAccess;
@@ -35,7 +36,7 @@ public class MixinLocalMobCapCalculator {
             EnhancedCelestialsLunarForecastWorldData data = lunarForecastWorldData.orElseThrow();
             Object2IntMap<MobCategory> counts = ((MobCountsAccess) instance).getCounts();
             final int currentCount = counts.getOrDefault(mobCategory, 0);
-            return currentCount < mobCategory.getMaxInstancesPerChunk() * data.currentLunarEvent().getSpawnMultiplierForMonsterCategory(mobCategory);
+            return currentCount < mobCategory.getMaxInstancesPerChunk() * ConfigAwareLunarEventHelper.getSpawnMultiplier(data.currentLunarEventHolder(), mobCategory);
         } else {
             return instance.canSpawn(mobCategory);
         }

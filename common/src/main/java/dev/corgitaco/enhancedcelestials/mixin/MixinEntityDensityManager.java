@@ -1,6 +1,7 @@
 package dev.corgitaco.enhancedcelestials.mixin;
 
 import dev.corgitaco.enhancedcelestials.EnhancedCelestials;
+import dev.corgitaco.enhancedcelestials.config.ConfigAwareLunarEventHelper;
 import dev.corgitaco.enhancedcelestials.mixin.access.ChunkMapAccess;
 import dev.corgitaco.enhancedcelestials.mixin.access.LocalMobCapCalculatorAccess;
 import dev.corgitaco.enhancedcelestials.mixin.access.WorldEntitySpawnerAccess;
@@ -35,7 +36,7 @@ public class MixinEntityDensityManager {
         ServerLevel level = ((ChunkMapAccess) ((LocalMobCapCalculatorAccess) this.localMobCapCalculator).getChunkMap()).getLevel();
 
         EnhancedCelestials.lunarForecastWorldData(level).ifPresent(data -> {
-            int i = (int) (entityClassification.getMaxInstancesPerChunk() * (this.spawnableChunkCount * data.currentLunarEvent().getSpawnMultiplierForMonsterCategory(entityClassification)) / WorldEntitySpawnerAccess.getMagicNumber());
+            int i = (int) (entityClassification.getMaxInstancesPerChunk() * (this.spawnableChunkCount * ConfigAwareLunarEventHelper.getSpawnMultiplier(data.currentLunarEventHolder(), entityClassification)) / WorldEntitySpawnerAccess.getMagicNumber());
             // Global Calculation
             if (this.mobCategoryCounts.getInt(entityClassification) >= i) {
                 cir.setReturnValue(false);

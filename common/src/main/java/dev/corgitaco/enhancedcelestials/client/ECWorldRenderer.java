@@ -3,7 +3,7 @@ package dev.corgitaco.enhancedcelestials.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.corgitaco.enhancedcelestials.EnhancedCelestials;
 import dev.corgitaco.enhancedcelestials.api.client.ColorSettings;
-import dev.corgitaco.enhancedcelestials.api.lunarevent.LunarEvent;
+import dev.corgitaco.enhancedcelestials.config.ConfigAwareClientHelper;
 import dev.corgitaco.enhancedcelestials.lunarevent.EnhancedCelestialsLunarForecastWorldData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -19,8 +19,8 @@ public class ECWorldRenderer {
         ClientLevel level = Minecraft.getInstance().level;
 
         EnhancedCelestials.lunarForecastWorldData(level).ifPresent(data -> {
-            ColorSettings lastColorSettings = data.lastLunarEventHolder().value().getClientSettings().colorSettings();
-            ColorSettings currentColorSettings = data.currentLunarEventHolder().value().getClientSettings().colorSettings();
+            ColorSettings lastColorSettings = ConfigAwareClientHelper.getColorSettings(data.lastLunarEventHolder());
+            ColorSettings currentColorSettings = ConfigAwareClientHelper.getColorSettings(data.currentLunarEventHolder());
 
             Vector3f lastGLColor = lastColorSettings.getGLMoonColor();
             Vector3f currentGLColor = currentColorSettings.getGLMoonColor();
@@ -43,7 +43,7 @@ public class ECWorldRenderer {
             return;
         }
         EnhancedCelestialsLunarForecastWorldData data = lunarForecastWorldData.orElseThrow();
-        RenderSystem.setShaderTexture(moonTextureId, data.currentLunarEvent().getClientSettings().moonTextureLocation());
+        RenderSystem.setShaderTexture(moonTextureId, ConfigAwareClientHelper.getMoonTexture(data.currentLunarEventHolder()));
     }
 
     public static float getMoonSize(float arg0) {
@@ -55,17 +55,14 @@ public class ECWorldRenderer {
         }
 
         EnhancedCelestialsLunarForecastWorldData data = lunarForecastWorldData.orElseThrow();
-        return Mth.clampedLerp(data.lastLunarEvent().getClientSettings().moonSize(), data.currentLunarEvent().getClientSettings().moonSize(), data.getBlend());
+        return Mth.clampedLerp(ConfigAwareClientHelper.getMoonSize(data.lastLunarEventHolder()), ConfigAwareClientHelper.getMoonSize(data.currentLunarEventHolder()), data.getBlend());
     }
 
     public static void eventLightMap(Vector3f skyVector, float partialTicks) {
         ClientLevel level = Minecraft.getInstance().level;
         EnhancedCelestials.lunarForecastWorldData(level).ifPresent(data -> {
-            LunarEvent lastEvent = data.lastLunarEvent();
-            LunarEvent currentEvent = data.currentLunarEvent();
-
-            ColorSettings colorSettings = currentEvent.getClientSettings().colorSettings();
-            ColorSettings lastColorSettings = lastEvent.getClientSettings().colorSettings();
+            ColorSettings colorSettings = ConfigAwareClientHelper.getColorSettings(data.currentLunarEventHolder());
+            ColorSettings lastColorSettings = ConfigAwareClientHelper.getColorSettings(data.lastLunarEventHolder());
 
             Vector3f glSkyLightColor = lastColorSettings.getGLSkyLightColor();
             Vector3f targetColor = new Vector3f(glSkyLightColor.x(), glSkyLightColor.y(), glSkyLightColor.z());

@@ -40,7 +40,7 @@ public class LunarSoundHandler implements AmbientSoundHandler {
         EnhancedCelestialsLunarForecastWorldData data = lunarForecastWorldData.orElseThrow();
 
         LunarEvent currentEvent = data.currentLunarEvent();
-        SoundEvent soundTrack = currentEvent.getClientSettings().soundTrack(); // Use client directly here.
+        SoundEvent soundTrack = dev.corgitaco.enhancedcelestials.config.ConfigAwareClientHelper.getAmbientSound(data.currentLunarEventHolder());
         if (currentEvent != this.lunarEvent || this.activeLunarSoundsMap.isEmpty()) {
             this.lunarEvent = currentEvent;
             this.activeLunarSoundsMap.forEach(BiomeAmbientSoundsHandler.LoopSoundInstance::fadeOut);

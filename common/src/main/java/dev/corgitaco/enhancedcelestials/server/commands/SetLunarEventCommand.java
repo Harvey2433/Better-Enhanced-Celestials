@@ -7,6 +7,7 @@ import com.mojang.datafixers.util.Either;
 import dev.corgitaco.enhancedcelestials.EnhancedCelestials;
 import dev.corgitaco.enhancedcelestials.api.EnhancedCelestialsRegistry;
 import dev.corgitaco.enhancedcelestials.api.lunarevent.LunarEvent;
+import dev.corgitaco.enhancedcelestials.config.ConfigAwareLunarEventHelper;
 import dev.corgitaco.enhancedcelestials.lunarevent.EnhancedCelestialsLunarForecastWorldData;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -52,6 +53,11 @@ public class SetLunarEventCommand {
             ResourceKey<LunarEvent> lunarEventResourceKey = unwrap.left().orElseThrow();
             Registry<LunarEvent> lunarEvents = world.registryAccess().registry(EnhancedCelestialsRegistry.LUNAR_EVENT_KEY).orElseThrow();
             if (lunarEvents.containsKey(lunarEventResourceKey) && lunarEvents.getHolderOrThrow(lunarEventResourceKey).isBound()) {
+                Holder<LunarEvent> holder = lunarEvents.getHolderOrThrow(lunarEventResourceKey);
+                if (ConfigAwareLunarEventHelper.isEventDisabled(holder)) {
+                    source.sendFailure(Component.literal("Lunar event \"%s\" is disabled in config.".formatted(lunarEventResourceKey.location())));
+                    return 0;
+                }
                 data.setLunarEvent(lunarEventResourceKey);
                 return 1;
             } else {
@@ -69,7 +75,12 @@ public class SetLunarEventCommand {
                 Optional<Holder<LunarEvent>> randomLunarEvent = possibleLunarEvents.getRandomElement(world.random);
 
                 if (randomLunarEvent.isPresent()) {
-                    source.getServer().submit(() -> data.setLunarEvent(randomLunarEvent.orElseThrow().unwrapKey().orElseThrow()));
+                    Holder<LunarEvent> chosen = randomLunarEvent.orElseThrow();
+                    if (ConfigAwareLunarEventHelper.isEventDisabled(chosen)) {
+                        source.sendFailure(Component.literal("Lunar event \"%s\" is disabled in config.".formatted(chosen.unwrapKey().map(k -> k.location().toString()).orElse("unknown"))));
+                        return 0;
+                    }
+                    source.getServer().submit(() -> data.setLunarEvent(chosen.unwrapKey().orElseThrow()));
                     return 1;
                 } else {
                     source.sendFailure(Component.literal("Invalid lunar event tag \"%s\"!".formatted(possibleLunarEvents.key().location())));
